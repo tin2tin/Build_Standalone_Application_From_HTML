@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Definitive Electron Project Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root { 
+            --primary-color: #007bff; 
+            --primary-hover: #0056b3; 
+            --dark-bg: #212529; 
+            --light-bg: #f8f9fa; 
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            line-height: 1.6; 
+            margin: 0; 
+            background-color: var(--light-bg); 
+            color: #333; 
+        }
+        .header { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 1.5rem 2rem; 
+            text-align: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 2rem auto; 
+            background-color: #fff; 
+            padding: 2.5rem; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .section { 
+            margin-bottom: 2.5rem; 
+            border-bottom: 1px solid #eee; 
+            padding-bottom: 2rem; 
+        }
+        h1, h2 { 
+            color: #333; 
+        }
+        h2 { 
+            margin-top: 0; 
+            border-bottom: 2px solid #f0f0f0; 
+            padding-bottom: 10px; 
+        }
+        label { 
+            display: block; 
+            font-weight: 600; 
+            margin-top: 1rem; 
+            margin-bottom: 5px; 
+            color: #555; 
+        }
+        .options-grid label { 
+            display: inline-block; 
+            margin-right: 15px; 
+            font-weight: normal; 
+            cursor: pointer; 
+        }
+        select, input[type="text"] { 
+            width: 100%; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            background-color: white; 
+        }
+        .file-drop-area { 
+            border: 2px dashed var(--primary-color); 
+            border-radius: 5px; 
+            padding: 2rem; 
+            text-align: center; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        }
+        .file-drop-area.dragover { 
+            border-color: var(--primary-hover); 
+            background-color: #f0f8ff; 
+        }
+        .file-drop-area.valid { 
+            border-color: #28a745; 
+        }
+        .file-drop-area.invalid { 
+            border-color: #dc3545; 
+        }
+        button { 
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover)); 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 1.5rem; 
+            display: inline-block; 
+            box-sizing: border-box; 
+            visibility: visible !important; 
+        }
+        button:disabled { 
+            background: #6c757d; 
+            cursor: not-allowed; 
+        }
+        .button-group { 
+            display: flex; 
+            gap: 1rem; 
+        }
+        .instructions { 
+            margin-top: 2rem; 
+            background-color: #e9ecef; 
+            padding: 1.5rem; 
+            border-left: 5px solid var(--primary-color); 
+            border-radius: 4px; 
+        }
+        code { 
+            background-color: var(--dark-bg); 
+            color: #f8f9fa; 
+            padding: 3px 6px; 
+            border-radius: 3px; 
+            font-family: "SF Mono", "Courier New", Courier, monospace; 
+        }
+        pre { 
+            background-color: var(--dark-bg); 
+            color: #f8f9fa; 
+            padding: 1rem; 
+            border-radius: 4px; 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+        }
+        .hidden { 
+            display: none; 
+        }
+        #status-message { 
+            font-style: italic; 
+            margin-top: 8px; 
+            font-weight: bold; 
+        }
+        #status-message.success { 
+            color: #28a745; 
+        }
+        #status-message.error { 
+            color: #dc3545; 
+        }
+        .note { 
+            font-size: 0.9rem; 
+            color: #666; 
+            margin-top: 0.5rem; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="header"><h1>Definitive Electron Project Generator</h1></div>
+<div class="container">
+    <div class="section">
+        <h2>1. App Details</h2>
+        <label for="appName">App Name</label>
+        <input type="text" id="appName" value="My Awesome App" required>
+        <label for="appId">App ID (e.g., com.company.appname)</label>
+        <input type="text" id="appId" value="com.awesome.myapp" required>
+    </div>
+    <div class="section">
+        <h2>2. Build Options</h2>
+        <label>Target Platforms</label>
+        <div class="options-grid">
+            <label><input type="checkbox" name="platform" value="win" checked> Windows</label>
+            <label><input type="checkbox" name="platform" value="mac" checked> macOS</label>
+            <label><input type="checkbox" name="platform" value="linux" checked> Linux</label>
+        </div>
+        <label for="windowStyle" style="margin-top: 1.5rem;">Window Style</label>
+        <select id="windowStyle">
+            <option value="standard">Standard Window</option>
+            <option value="maximized">Maximized (No Menu, Title Bar Visible)</option>
+            <option value="fullscreen">True Fullscreen (No Title Bar)</option>
+        </select>
+        <div class="note">"Maximized" fills the screen while keeping the title bar. "True Fullscreen" is immersive and hides the title bar.</div>
+    </div>
+    <div class="section">
+        <h2>3. Project Files</h2>
+        <label for="appFiles">Select Project Folder (must contain index.html in root)</label>
+        <div class="note">This tool works best in Chrome/Edge for folder drag-and-drop or selection. In other browsers, select individual files (no subfolders supported).</div>
+        <div id="fileDropArea" class="file-drop-area">
+            <p>Drag & Drop Folder Here, or Click to Select</p>
+            <input type="file" id="appFiles" webkitdirectory directory multiple style="display: none;">
+            <div id="status-message"></div>
+        </div>
+        <label for="appIcon">Select App Icon (.png, .ico, or .icns)</label>
+        <div class="note">Use .ico for Windows, .icns for macOS, .png for Linux. Ensure the file is valid to avoid build errors.</div>
+        <input type="file" id="appIcon" accept=".png,.ico,.icns" required>
+    </div>
+    <div class="section">
+        <h2>4. Save/Load Configuration</h2>
+        <div class="note">Save your current settings to a JSON file or load a previously saved configuration. Re-select project folder and icon after loading.</div>
+        <div class="button-group">
+            <button id="saveConfigBtn">Save Configuration</button>
+            <button id="loadConfigBtn">Load Configuration</button>
+            <input type="file" id="configFile" accept=".json" style="display: none;">
+        </div>
+    </div>
+    <div class="button-group">
+        <button id="generateBtn">Generate Project ZIP</button>
+        <button id="resetBtn" style="background: #dc3545;">Reset Selections</button>
+    </div>
+    <div id="instructions" class="instructions hidden">
+        <h2>5. Build Instructions</h2>
+        <p><strong>Requires Node.js v20+ (LTS recommended; download from nodejs.org if needed).</strong> Unzip <strong><code>electron-project.zip</code></strong> and follow the steps below. Do not open <code>main.js</code> in a browser—it’s for Electron/Node.js.</p>
+        <div><h4>For Windows:</h4>
+            <ol>
+                <li>Right-click <strong><code>electron-project.zip</code></strong>, select "Properties," and unblock if needed.</li>
+                <li>Extract the ZIP to a folder.</li>
+                <li>Open Command Prompt in the folder (shift + right-click > "Open command window here"), then type <code>build.bat</code> and press Enter.</li>
+            </ol>
+        </div>
+        <div><h4>For macOS/Linux:</h4>
+            <ol>
+                <li>Unzip <strong><code>electron-project.zip</code></strong> or run <code>unzip electron-project.zip</code> in Terminal.</li>
+                <li>Open Terminal in the folder and run <code>chmod +x build.sh && ./build.sh</code>.</li>
+            </ol>
+        </div>
+        <p>The built app(s) will be in the <strong><code>dist</code></strong> folder. If errors occur, run <code>npm install</code> and <code>npx electron-builder --win</code> (for Windows) in Command Prompt/Terminal, then share the output.</p>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('appFiles');
+    const dropArea = document.getElementById('fileDropArea');
+    const statusMessage = document.getElementById('status-message');
+    const generateBtn = document.getElementById('generateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const saveConfigBtn = document.getElementById('saveConfigBtn');
+    const loadConfigBtn = document.getElementById('loadConfigBtn');
+    const configFileInput = document.getElementById('configFile');
+    const instructions = document.getElementById('instructions');
+    let projectFiles = [];
+    let rootDir = '';
+
+    if (!generateBtn || !saveConfigBtn || !loadConfigBtn) {
+        console.error('One or more buttons not found in DOM');
+        alert('Error: A required button is missing. Please check browser console and ensure you are using a modern browser like Chrome or Edge.');
+    } else {
+        console.log('All buttons found and event listeners attached');
+    }
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropArea.addEventListener(e, preventDefaults, false));
+    function preventDefaults(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+    }
+    ['dragenter', 'dragover'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.add('dragover'), false));
+    ['dragleave', 'drop'].forEach(e => dropArea.addEventListener(e, () => dropArea.classList.remove('dragover'), false));
+
+    dropArea.addEventListener('drop', handleDrop);
+    async function handleDrop(e) {
+        updateStatus('Scanning folder...', '');
+        try {
+            const useModern = 'getAsFileSystemHandle' in DataTransferItem.prototype;
+            let files = [];
+            if (useModern) {
+                const items = [...e.dataTransfer.items].filter(item => item.kind === 'file');
+                if (items.length !== 1) throw new Error('Please drop a single folder.');
+                const handle = await items[0].getAsFileSystemHandle();
+                if (handle.kind !== 'directory') throw new Error('Please drop a folder, not files.');
+                files = await readDirectory(handle);
+                rootDir = handle.name;
+            } else {
+                const item = e.dataTransfer.items[0];
+                const entry = item.webkitGetAsEntry();
+                if (!entry || !entry.isDirectory) throw new Error('Please drop a single folder (Chrome/Edge only).');
+                files = await scanDroppedFiles(entry);
+                rootDir = entry.name;
+            }
+            projectFiles = files;
+            validateFiles();
+        } catch (error) {
+            updateStatus(`❌ ${error.message || 'Could not read folder.'}`, 'error');
+            console.error('Drop Error:', error);
+        }
+    }
+
+    async function readDirectory(dirHandle) {
+        const files = [];
+        for await (const entry of dirHandle.values()) {
+            if (entry.kind === 'file') {
+                const file = await entry.getFile();
+                file.relativePath = `${dirHandle.name}/${entry.name}`;
+                files.push(file);
+            } else if (entry.kind === 'directory') {
+                const subFiles = await readDirectory(entry);
+                subFiles.forEach(f => {
+                    f.relativePath = `${dirHandle.name}/${entry.name}${f.relativePath.substring(entry.name.length)}`;
+                });
+                files.push(...subFiles);
+            }
+        }
+        return files;
+    }
+
+    async function scanDroppedFiles(rootEntry) {
+        const allFiles = [];
+        const queue = [{ entry: rootEntry, path: rootEntry.name }];
+        while (queue.length > 0) {
+            const { entry, path } = queue.shift();
+            if (entry.isFile) {
+                const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+                file.relativePath = path;
+                allFiles.push(file);
+            } else if (entry.isDirectory) {
+                const reader = entry.createReader();
+                let batch;
+                do {
+                    batch = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+                    for (const subEntry of batch) {
+                        queue.push({ entry: subEntry, path: `${path}/${subEntry.name}` });
+                    }
+                } while (batch.length > 0);
+            }
+        }
+        return allFiles;
+    }
+
+    dropArea.onclick = async () => {
+        updateStatus('Selecting folder...', '');
+        try {
+            if ('showDirectoryPicker' in window) {
+                const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+                projectFiles = await readDirectory(dirHandle);
+                rootDir = dirHandle.name;
+            } else {
+                fileInput.click();
+            }
+            validateFiles();
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                updateStatus(`❌ ${error.message || 'Folder selection canceled or failed.'}`, 'error');
+                console.error('Select Error:', error);
+            }
+        }
+    };
+
+    fileInput.onchange = (e) => {
+        projectFiles = Array.from(e.target.files);
+        projectFiles.forEach(f => f.relativePath = f.webkitRelativePath);
+        rootDir = projectFiles[0]?.relativePath.split('/')[0] || '';
+        validateFiles();
+    };
+
+    function validateFiles() {
+        if (projectFiles.length === 0) {
+            updateStatus('❌ Folder is empty or could not be read.', 'error');
+            return;
+        }
+        const indexPath = `${rootDir}/index.html`;
+        const hasIndex = projectFiles.some(file => file.relativePath === indexPath);
+        if (hasIndex) {
+            updateStatus(`✔ Folder "${rootDir}" (${projectFiles.length} files) validated with index.html.`, 'success');
+        } else {
+            updateStatus(`❌ Missing index.html in root of "${rootDir}".`, 'error');
+        }
+    }
+
+    function updateStatus(message, status) {
+        statusMessage.textContent = message;
+        statusMessage.className = status;
+        dropArea.className = `file-drop-area ${status === 'success' ? 'valid' : (status === 'error' ? 'invalid' : '')}`;
+    }
+
+    async function saveConfiguration() {
+        try {
+            const appName = document.getElementById('appName').value.trim();
+            const appId = document.getElementById('appId').value.trim();
+            const windowStyle = document.getElementById('windowStyle').value;
+            const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
+            
+            const config = { appName, appId, windowStyle, platforms };
+            const configJson = JSON.stringify(config, null, 2);
+            const blob = new Blob([configJson], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'electron-config.json';
+            link.click();
+            updateStatus('✔ Configuration saved as electron-config.json.', 'success');
+        } catch (error) {
+            console.error('Save Config Error:', error);
+            updateStatus(`❌ Error saving configuration: ${error.message}`, 'error');
+        }
+    }
+
+    async function loadConfiguration() {
+        try {
+            configFileInput.click();
+        } catch (error) {
+            console.error('Load Config Error:', error);
+            updateStatus(`❌ Error initiating configuration load: ${error.message}`, 'error');
+        }
+    }
+
+    configFileInput.onchange = async (e) => {
+        try {
+            const file = e.target.files[0];
+            if (!file) {
+                updateStatus('❌ No configuration file selected.', 'error');
+                return;
+            }
+            const text = await file.text();
+            const config = JSON.parse(text);
+
+            if (!config.appName || !config.appId || !config.windowStyle || !config.platforms) {
+                throw new Error('Invalid configuration file: missing required fields.');
+            }
+
+            document.getElementById('appName').value = config.appName;
+            document.getElementById('appId').value = config.appId;
+            document.getElementById('windowStyle').value = config.windowStyle;
+            document.querySelectorAll('input[name="platform"]').forEach(cb => {
+                cb.checked = config.platforms.includes(cb.value);
+            });
+
+            updateStatus('✔ Configuration loaded successfully. Please re-select project folder and icon.', 'success');
+        } catch (error) {
+            console.error('Load Config Error:', error);
+            updateStatus(`❌ Error loading configuration: ${error.message}`, 'error');
+        } finally {
+            configFileInput.value = '';
+        }
+    };
+
+    const createMainJs = (iconExt, style) => {
+        let options = `width: 800, height: 600`;
+        let menuLine = '';
+        let header = `const { app, BrowserWindow } = require('electron');`;
+
+        if (style === 'maximized') {
+            header = `const { app, BrowserWindow, screen } = require('electron');`;
+            options = `width: screen.getPrimaryDisplay().workAreaSize.width, height: screen.getPrimaryDisplay().workAreaSize.height`;
+            menuLine = `mainWindow.setMenu(null); console.log('Menu removed, window maximized.');`;
+        } else if (style === 'fullscreen') {
+            options = `fullscreen: true`;
+            menuLine = `console.log('Fullscreen enabled.');`;
+        } else {
+            menuLine = `console.log('Standard window.');`;
+        }
+
+        return `/* main.js */ 
+${header}
+const path = require('path'); 
+
+function createWindow() { 
+  const mainWindow = new BrowserWindow({ 
+    ${options},
+    icon: path.join(__dirname, 'build/icon.${iconExt}'), 
+    frame: true,
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false } 
+  }); 
+  
+  ${menuLine}
+  
+  mainWindow.loadFile('index.html'); 
+} 
+
+app.whenReady().then(createWindow); 
+app.on('window-all-closed', () => process.platform !== 'darwin' && app.quit()); 
+app.on('activate', () => BrowserWindow.getAllWindows().length === 0 && createWindow());`;
+    };
+
+    const createPackageJson = (appName, appId, iconExt) => JSON.stringify({
+        name: appName.toLowerCase().replace(/\s+/g, '-'),
+        productName: appName,
+        version: "1.0.0",
+        description: `Desktop app for ${appName}`,
+        main: "main.js",
+        scripts: {
+            start: "electron .",
+            dist: "electron-builder",
+            postinstall: "electron-builder install-app-deps"
+        },
+        devDependencies: {
+            "electron": "^37.4.0",
+            "electron-builder": "^26.0.12"
+        },
+        build: {
+            appId: appId,
+            productName: appName,
+            files: ["**/*", "!build/*", "!*.{bat,sh}"],
+            directories: { buildResources: "build" },
+            win: { target: "nsis", icon: `build/icon.${iconExt}`, artifactName: "${productName} Setup ${version}.${ext}" },
+            mac: { target: "dmg", icon: `build/icon.${iconExt}`, artifactName: "${productName} ${version}.${ext}" },
+            linux: { target: "AppImage", icon: `build/icon.${iconExt}`, artifactName: "${productName}-${version}.${ext}" }
+        }
+    }, null, 2);
+
+    const createBuildBat = (platforms) => `@echo off
+echo Installing dependencies...
+call npm install
+if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+echo Building for ${platforms.join(', ')}...
+set DEBUG=electron-builder
+npx electron-builder ${platforms.map(p => `--${p}`).join(' ')}
+if %ERRORLEVEL% NEQ 0 (
+    echo Build failed. Check logs above for details.
+    pause
+    exit /b %ERRORLEVEL%
+)
+echo Build completed successfully!
+pause`;
+
+    const createBuildSh = (platforms) => `#!/bin/bash
+echo "Installing dependencies..."
+npm install
+if [ $? -ne 0 ]; then exit 1; fi
+echo "Building for ${platforms.join(', ')}..."
+DEBUG=electron-builder npx electron-builder ${platforms.map(p => `--${p}`).join(' ')}
+if [ $? -ne 0 ]; then
+    echo "Build failed. Check logs above for details."
+    exit 1
+fi
+echo "Build completed successfully!"`;
+
+    async function generateProjectZip() {
+        console.log('Generate button clicked');
+        const appName = document.getElementById('appName').value.trim();
+        const appId = document.getElementById('appId').value.trim();
+        const appIcon = document.getElementById('appIcon').files[0];
+        const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
+        const hasIndex = projectFiles.some(file => file.relativePath === `${rootDir}/index.html`);
+
+        if (!appName || !appId || projectFiles.length === 0 || !appIcon || platforms.length === 0 || !hasIndex) {
+            alert('Please fill all fields, select a valid folder with index.html, and choose an icon/platform(s).');
+            return;
+        }
+
+        const iconExt = appIcon.name.split('.').pop().toLowerCase();
+        if (!['png', 'ico', 'icns'].includes(iconExt)) {
+            alert('Invalid icon file extension. Use .png, .ico, or .icns.');
+            return;
+        }
+
+        generateBtn.disabled = true;
+        generateBtn.textContent = 'Generating ZIP...';
+
+        try {
+            const zip = new JSZip();
+            const mainJsContent = createMainJs(iconExt, document.getElementById('windowStyle').value);
+            zip.file('main.js', mainJsContent);
+            zip.file('preload.js', `console.log('Preload script loaded.');`);
+            zip.file('package.json', createPackageJson(appName, appId, iconExt));
+            zip.file('build.bat', createBuildBat(platforms));
+            zip.file('build.sh', createBuildSh(platforms));
+            zip.folder('build').file(`icon.${iconExt}`, appIcon);
+
+            for (const file of projectFiles) {
+                const pathInZip = file.relativePath.substring(rootDir.length + 1);
+                if (pathInZip) zip.file(pathInZip, file);
+            }
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = 'electron-project.zip';
+            link.click();
+            instructions.classList.remove('hidden');
+            updateStatus('✔ ZIP generated successfully!', 'success');
+        } catch (error) {
+            console.error('ZIP Generation Error:', error);
+            alert('Error generating ZIP: ' + error.message);
+            updateStatus(`❌ Error generating ZIP: ${error.message}`, 'error');
+        } finally {
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate Project ZIP';
+        }
+    }
+
+    generateBtn.addEventListener('click', generateProjectZip);
+    saveConfigBtn.addEventListener('click', saveConfiguration);
+    loadConfigBtn.addEventListener('click', loadConfiguration);
+    resetBtn.addEventListener('click', () => {
+        projectFiles = [];
+        rootDir = '';
+        fileInput.value = '';
+        document.getElementById('appIcon').value = '';
+        document.getElementById('appName').value = 'My Awesome App';
+        document.getElementById('appId').value = 'com.awesome.myapp';
+        document.getElementById('windowStyle').value = 'standard';
+        document.querySelectorAll('input[name="platform"]').forEach(cb => cb.checked = true);
+        updateStatus('', '');
+        instructions.classList.add('hidden');
+    });
+</script>
+
+</body>
+</html>
