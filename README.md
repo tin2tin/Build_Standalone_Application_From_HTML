@@ -8,6 +8,9 @@ A simple web-based tool to generate a complete Electron project ZIP file, ready 
   <a href="https://tin2tin.github.io/Build_Standalone_Application_From_HTML/">Start the app</a><br><br>
 </div>
 
+<img width="798" height="1029" alt="image" src="https://github.com/user-attachments/assets/29773cf0-45f7-4065-b15a-624bcd46b214" />
+
+
 ## Features
 - Generate a ZIP file with a fully configured Electron project.
 - Supports Windows, macOS, and Linux builds.
