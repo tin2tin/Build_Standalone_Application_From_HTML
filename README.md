@@ -5,7 +5,7 @@ A simple web-based tool to generate a complete Electron project ZIP file, ready 
 ## Try it!
 
 <div align="left">
-  <a href="https://tin2tin.github.io/build_html_to_standalone/">Start the app</a><br><br>
+  <a href="https://tin2tin.github.io/Build_Standalone_Application_From_HTML/">Start the app</a><br><br>
 </div>
 
 ## Features
