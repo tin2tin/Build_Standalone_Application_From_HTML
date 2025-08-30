@@ -1,4 +1,4 @@
-# Built HTML to Standalone
+# Build Standalone Application From HTML
 
 A simple web-based tool to generate a complete Electron project ZIP file, ready for building cross-platform desktop applications (Windows, macOS, and Linux). This generator allows you to customize app details, select project files, and configure build options—all in your browser.
 
