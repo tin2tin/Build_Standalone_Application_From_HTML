@@ -2,7 +2,7 @@
 
 A simple web-based tool to generate a complete Electron project ZIP file, ready for building cross-platform desktop applications (Windows, macOS, and Linux). This generator allows you to customize app details, select project files, and configure build options—all in your browser.
 
-## Try it!
+## Use it!
 
 <div align="left">
   <a href="https://tin2tin.github.io/Build_Standalone_Application_From_HTML/">Start the app</a><br><br>
