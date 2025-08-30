@@ -3,159 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Build_Standalone_Application_From_HTML</title>
+    <title>Definitive Electron Project Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        :root { 
-            --primary-color: #007bff; 
-            --primary-hover: #0056b3; 
-            --dark-bg: #212529; 
-            --light-bg: #f8f9fa; 
+        :root {
+            --background-color: #1e1e1e;
+            --surface-color: #2d2d2d;
+            --primary-color: #8a63d2;
+            --text-color: #e0e0e0;
+            --muted-text-color: #a0a0a0;
+            --border-color: #444444;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            line-height: 1.6; 
-            margin: 0; 
-            background-color: var(--light-bg); 
-            color: #333; 
+
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
-        .header { 
-            background: var(--primary-color); 
-            color: white; 
-            padding: 1.5rem 2rem; 
-            text-align: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+
+        .header {
+            background: var(--surface-color);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
         }
-        .container { 
-            max-width: 800px; 
-            margin: 2rem auto; 
-            background-color: #fff; 
-            padding: 2.5rem; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 500;
         }
-        .section { 
-            margin-bottom: 2.5rem; 
-            border-bottom: 1px solid #eee; 
-            padding-bottom: 2rem; 
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
-        h1, h2 { 
-            color: #333; 
+
+        .section {
+            background-color: var(--surface-color);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
         }
-        h2 { 
-            margin-top: 0; 
-            border-bottom: 2px solid #f0f0f0; 
-            padding-bottom: 10px; 
+
+        h1, h2 {
+            color: var(--text-color);
+            font-weight: 500;
         }
-        label { 
-            display: block; 
-            font-weight: 600; 
-            margin-top: 1rem; 
-            margin-bottom: 5px; 
-            color: #555; 
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            font-size: 1.25rem;
         }
-        .options-grid label { 
-            display: inline-block; 
-            margin-right: 15px; 
-            font-weight: normal; 
-            cursor: pointer; 
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--muted-text-color);
+            font-size: 0.9rem;
         }
-        select, input[type="text"] { 
-            width: 100%; 
-            padding: 10px; 
-            box-sizing: border-box; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            font-size: 16px; 
-            background-color: white; 
+
+        .options-grid {
+            display: flex;
+            gap: 1.5rem;
         }
-        .file-drop-area { 
-            border: 2px dashed var(--primary-color); 
-            border-radius: 5px; 
-            padding: 2rem; 
-            text-align: center; 
-            margin-top: 10px; 
-            cursor: pointer; 
-            transition: all 0.2s; 
+
+        .options-grid label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+            margin-top: 0.5rem;
         }
-        .file-drop-area.dragover { 
-            border-color: var(--primary-hover); 
-            background-color: #f0f8ff; 
+
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
         }
-        .file-drop-area.valid { 
-            border-color: #28a745; 
+
+        select, input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #333;
+            color: var(--text-color);
         }
-        .file-drop-area.invalid { 
-            border-color: #dc3545; 
+        
+        input[type="file"]{
+            background-color: var(--surface-color);
         }
-        button { 
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-hover)); 
-            color: white; 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 5px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 1.5rem; 
-            display: inline-block; 
-            box-sizing: border-box; 
-            visibility: visible !important; 
+
+        .file-drop-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 5px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #333;
         }
-        button:disabled { 
-            background: #6c757d; 
-            cursor: not-allowed; 
+
+        .file-drop-area.dragover {
+            border-color: var(--primary-color);
+            background-color: #383838;
         }
-        .button-group { 
-            display: flex; 
-            gap: 1rem; 
+
+        .file-drop-area.valid {
+            border-color: var(--success-color);
         }
-        .instructions { 
-            margin-top: 2rem; 
-            background-color: #e9ecef; 
-            padding: 1.5rem; 
-            border-left: 5px solid var(--primary-color); 
-            border-radius: 4px; 
+
+        .file-drop-area.invalid {
+            border-color: var(--error-color);
         }
-        code { 
-            background-color: var(--dark-bg); 
-            color: #f8f9fa; 
-            padding: 3px 6px; 
-            border-radius: 3px; 
-            font-family: "SF Mono", "Courier New", Courier, monospace; 
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        pre { 
-            background-color: var(--dark-bg); 
-            color: #f8f9fa; 
-            padding: 1rem; 
-            border-radius: 4px; 
-            white-space: pre-wrap; 
-            word-wrap: break-word; 
+
+        button:hover {
+            background-color: #7a58b8;
         }
-        .hidden { 
-            display: none; 
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
         }
-        #status-message { 
-            font-style: italic; 
-            margin-top: 8px; 
-            font-weight: bold; 
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
         }
-        #status-message.success { 
-            color: #28a745; 
+
+        .instructions {
+            margin-top: 2rem;
+            background-color: var(--surface-color);
+            padding: 1.5rem;
+            border-left: 3px solid var(--primary-color);
+            border-radius: 4px;
         }
-        #status-message.error { 
-            color: #dc3545; 
+
+        code {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-family: "SF Mono", "Courier New", Courier, monospace;
+            font-size: 0.9em;
         }
-        .note { 
-            font-size: 0.9rem; 
-            color: #666; 
-            margin-top: 0.5rem; 
+
+        pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid var(--border-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #status-message {
+            font-style: italic;
+            margin-top: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        #status-message.success {
+            color: var(--success-color);
+        }
+
+        #status-message.error {
+            color: var(--error-color);
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: var(--muted-text-color);
+            margin-top: 0.5rem;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-<div class="header"><h1>Build Standalone Application From HTML</h1></div>
+<div class="header">
+    <h1>Definitive Electron Project Generator</h1>
+</div>
 <div class="container">
     <div class="section">
         <h2>1. App Details</h2>
@@ -172,7 +232,7 @@
             <label><input type="checkbox" name="platform" value="mac" checked> macOS</label>
             <label><input type="checkbox" name="platform" value="linux" checked> Linux</label>
         </div>
-        <label for="windowStyle" style="margin-top: 1.5rem;">Window Style</label>
+        <label for="windowStyle">Window Style</label>
         <select id="windowStyle">
             <option value="standard">Standard Window</option>
             <option value="maximized">Maximized (No Menu, Title Bar Visible)</option>
@@ -204,19 +264,21 @@
     </div>
     <div class="button-group">
         <button id="generateBtn">Generate Project ZIP</button>
-        <button id="resetBtn" style="background: #dc3545;">Reset Selections</button>
+        <button id="resetBtn" style="background-color: #555;">Reset Selections</button>
     </div>
     <div id="instructions" class="instructions hidden">
         <h2>5. Build Instructions</h2>
         <p><strong>Requires Node.js v20+ (LTS recommended; download from nodejs.org if needed).</strong> Unzip <strong><code>electron-project.zip</code></strong> and follow the steps below. Do not open <code>main.js</code> in a browser—it’s for Electron/Node.js.</p>
-        <div><h4>For Windows:</h4>
+        <div>
+            <h4>For Windows:</h4>
             <ol>
                 <li>Right-click <strong><code>electron-project.zip</code></strong>, select "Properties," and unblock if needed.</li>
                 <li>Extract the ZIP to a folder.</li>
                 <li>Open Command Prompt in the folder (shift + right-click > "Open command window here"), then type <code>build.bat</code> and press Enter.</li>
             </ol>
         </div>
-        <div><h4>For macOS/Linux:</h4>
+        <div>
+            <h4>For macOS/Linux:</h4>
             <ol>
                 <li>Unzip <strong><code>electron-project.zip</code></strong> or run <code>unzip electron-project.zip</code> in Terminal.</li>
                 <li>Open Terminal in the folder and run <code>chmod +x build.sh && ./build.sh</code>.</li>
